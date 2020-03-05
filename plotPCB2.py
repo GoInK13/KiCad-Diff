@@ -1,4 +1,4 @@
-#!/Applications/KiCad/kicad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python
+#!/usr/bin/python3
 
 '''
 Kicad plot pcb file.
@@ -6,7 +6,7 @@ Plot variety of svg files in plot directory
 '''
 
 import sys
-sys.path.insert(0, "/Applications/Kicad/kicad.app/Contents/Frameworks/python/site-packages/")
+#sys.path.insert(0, "/Applications/Kicad/kicad.app/Contents/Frameworks/python/site-packages/")
 import pcbnew
 from pcbnew import *
 
@@ -15,10 +15,10 @@ boardName = sys.argv[1]
 plotDir = sys.argv[2]
 reqLayers = []
 
-file = open('/tmp/svg/layers', 'r')
-reqLayers = [line.strip() for line in file]
+#file = open('/tmp/svg/layers', 'r')
+#reqLayers = [line.strip() for line in file]
 
-print(reqLayers)
+#print(reqLayers)
 
 
 board = LoadBoard(boardName)
@@ -66,8 +66,9 @@ layers = [
 
 
 for layer_info in layers:
-    if layer_info[2] in reqLayers:
-        pctl.SetLayer(layer_info[1])
-        pctl.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_SVG, layer_info[2])
-        pctl.PlotLayer()
+    print("layer_info[2]="+str(layer_info[2]))
+#    if layer_info[2] in reqLayers:
+    pctl.SetLayer(layer_info[1])
+    pctl.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_SVG, layer_info[2])
+    pctl.PlotLayer()
 pctl.ClosePlot()

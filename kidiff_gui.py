@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 #
 # A python script to select two revisions of a Kicad pcbnew layout
 # held in a suitable version control repository and produce a graphical diff
@@ -37,12 +37,12 @@ socketserver.TCPServer.allow_reuse_address = True
 # is Fossil > Git > SVN.
 
 gitProg = '/usr/bin/git'
-fossilProg = '/usr/local/bin/fossil'
-svnProg = '/usr/bin/svn'
+fossilProg = ''
+svnProg = ''
 plotDir = '/Plots'
 webDir = '/web'
 diffProg = '/usr/bin/diff'
-plotProg = '/usr/local/bin/plotPCB2_DIMS.py'
+plotProg = '/media/pierrot/Trilys_crypted/NAS/Trilys_GIT/Python/KiCad/KiCad-Diff/plotPCB2.py'
 
 
 # -------------------------------------------------------------------------
@@ -664,7 +664,9 @@ def getGitDiff(diff1, diff2, prjctName, prjctPath):
     artifact2 = diff2[:6]
 
     findDiff = 'cd ' + prjctPath + ' && ' + gitProg + ' diff --name-only ' + \
-        artifact1 + ' ' + artifact2 + ' | /usr/bin/grep .kicad_pcb'
+        artifact1 + ' ' + artifact2 + ' | /bin/grep .kicad_pcb'
+
+    print("findDiff="+str(findDiff))
 
     changes = Popen(
         findDiff,
@@ -678,7 +680,7 @@ def getGitDiff(diff1, diff2, prjctName, prjctPath):
     changed = (stdout.decode('utf-8'))
 
     if changed == '':
-        print("No .kicad_pcb files differ between these commits")
+        print("No .kicad_pcb files differ between these commits. (git)")
         sys.exit()
 
     outputDir1 = prjctPath + plotDir + '/' + artifact1
@@ -691,10 +693,13 @@ def getGitDiff(diff1, diff2, prjctName, prjctPath):
         os.makedirs(outputDir2)
 
     gitArtifact1 = 'cd ' + prjctPath + ' && ' + gitProg + ' show ' + artifact1 + \
-        ':' + prjctName + ' > ' + outputDir1 + '/' + prjctName
+        ':KiCad/' + prjctName + ' > ' + outputDir1 + '/' + prjctName
 
     gitArtifact2 = 'cd ' + prjctPath + ' && ' + gitProg + ' show ' + artifact2 + \
-        ':' + prjctName + ' > ' + outputDir2 + '/' + prjctName
+        ':KiCad/' + prjctName + ' > ' + outputDir2 + '/' + prjctName
+
+    print("gitArtifact1="+str(gitArtifact1))
+    print("gitArtifact2="+str(gitArtifact2))
 
     ver1 = Popen(
         gitArtifact1,
@@ -718,6 +723,9 @@ def getGitDiff(diff1, diff2, prjctName, prjctPath):
 
     gitDateTime1 = 'cd ' + prjctPath + ' && ' + gitProg + ' show -s --format="%ci" ' + artifact1
     gitDateTime2 = 'cd ' + prjctPath + ' && ' + gitProg + ' show -s --format="%ci" ' + artifact2
+
+    print("gitDateTime1="+str(gitDateTime1))
+    print("gitDateTime2="+str(gitDateTime2))
 
     dt1 = Popen(
         gitDateTime1,
@@ -771,7 +779,7 @@ def getSVNDiff(diff1, diff2, prjctName, prjctPath):
     changed, *boardName = (stdout.decode('utf-8'))
 
     if changed != 'M':
-        print("No .kicad_pcb files differ between these commits")
+        print("No .kicad_pcb files differ between these commits. (SVN)")
         sys.exit()
 
     outputDir1 = prjctPath + plotDir + '/' + diff1
@@ -868,7 +876,7 @@ def getFossilDiff(diff1, diff2, prjctName, prjctPath):
     changed = (stdout.decode('utf-8'))
     print(changed)
     if changed == '':
-        print("No .kicad_pcb files differ between these commits")
+        print("No .kicad_pcb files differ between these commits. (Fossil)")
         sys.exit()
 
     outputDir1 = prjctPath + plotDir + '/' + artifact1
@@ -1109,6 +1117,9 @@ def makeSVG(d1, d2, prjctName, prjctPath):
 
     plot1Cmd = plotProg + ' ' + Diff1 + " " + d1SVG
     plot2Cmd = plotProg + ' ' + Diff2 + " " + d2SVG
+
+    print("plot1Cmd="+str(plot1Cmd))
+    print("plot2Cmd="+str(plot2Cmd))
 
     plot1=Popen(
         plot1Cmd,
@@ -1505,7 +1516,7 @@ if __name__ == "__main__":
     if (SCMS == ""):
         print("You need to have at least one SCM program path identified in lines 32 - 40")
         exit()
-    gui = tk.Tk(SCMS)
+    gui = tk.Tk()
     gui.withdraw()
     gui.update()
     Select = Select(gui)
@@ -1552,7 +1563,12 @@ if __name__ == "__main__":
 
     makeOutput(svgDir1, svgDir2, prjctName, prjctPath, times, boardDims1, boardDims2)
 
-    startWebServer()
+#    startWebServer()
 
+    webd = prjctPath + plotDir + webDir
+    webIndex = webd + '/index.html'
+
+    print("webIndex="+str(webIndex))
+    # Start as local without server :
     webbrowser.open(
-        'http://127.0.0.1:' + str(PORT) + '/web/index.html')
+        'file://'+str(webIndex))

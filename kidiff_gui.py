@@ -958,7 +958,7 @@ def getProject():
     selector set for .kicad_pcb files. Returns path and file name
     '''
     selected = tk.filedialog.askopenfile(
-        initialdir="~/",
+        initialdir="./",
         title="Select kicad_pcb file in a VC directory",
         filetypes=(("KiCad pcb files", "*.kicad_pcb"), ("all files", "*.*")))
     if selected:

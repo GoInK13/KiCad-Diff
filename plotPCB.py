@@ -29,7 +29,7 @@ def processBoard(boardName, plotDir):  # Load board and initialize plot controll
     popt.SetPlotFrameRef(False)
     popt.SetLineWidth(pcbnew.FromMM(0.15))
     popt.SetAutoScale(False)
-    popt.SetScale(2)
+    popt.SetScale(1)
     popt.SetMirror(False)
     popt.SetUseGerberAttributes(True)
     popt.SetExcludeEdgeLayer(False)
